@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Provider Details</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f7f7;
+            padding: 20px;
+            margin: 0;
+        }
+        .container {
+            width: 80%;
+            margin: auto;
+        }
+        .provider-info {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+        .provider-info h1 {
+            color: #2c3e50;
+            font-size: 2em;
+            margin-bottom: 20px;
+        }
+        .provider-info p {
+            color: #7f8c8d;
+            font-size: 18px;
+            line-height: 1.6;
+        }
+        .button {
+            display: inline-block;
+            background-color: #3498db;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border: none;
+            border-radius: 5px;
+            margin-top: 20px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .button:hover {
+            background-color: #2980b9;
+        }
+        select, input[type="date"] {
+            padding: 8px;
+            margin-top: 10px;
+            margin-right: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            background-color: #f0f0f0;
+        }
+        label {
+            font-size: 16px;
+            margin-top: 10px;
+            display: block;
+            color: #2c3e50;
+        }
+        .provider-info img {
+            width: 100%;
+            max-width: 400px;
+            height: auto;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        .booking-form {
+            margin-top: 30px;
+            border-top: 2px solid #ddd;
+            padding-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="provider-info">
+            <h1>{{ provider.name }}</h1>
+            <p><strong>Service:</strong> {{ provider.service }}</p>
+            <p><strong>Rating:</strong> {{ provider.rating }}</p>
+            
+            {% if provider.description %}
+                <p><strong>Description:</strong> {{ provider.description }}</p>
+            {% endif %}
+            
+            {% if provider.contact_info %}
+                <p><strong>Contact Information:</strong> {{ provider.contact_info }}</p>
+            {% endif %}
+
+            {% if provider.image %}
+                <img src="{{ url_for('static', filename=provider.image) }}" alt="{{ provider.name }}">
+            {% endif %}
+
+            <!-- Booking Form -->
+            <div class="booking-form">
+                <label for="date"><strong>Select a date:</strong></label>
+                <input type="date" id="date" required>
+
+                <label for="slot"><strong>Select a time slot:</strong></label>
+                <select id="slot" required>
+                    <option value="09:00 AM">09:00 AM</option>
+                    <option value="10:00 AM">10:00 AM</option>
+                    <option value="11:00 AM">11:00 AM</option>
+                    <option value="12:00 PM">12:00 PM</option>
+                    <option value="02:00 PM">02:00 PM</option>
+                    <option value="03:00 PM">03:00 PM</option>
+                </select>
+
+                <button class="button" id="bookNow">Book & Pay</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Set the min and max dates
+        const today = new Date();
+        const maxDate = new Date(today);
+        maxDate.setDate(today.getDate() + 3);
+
+        const dateInput = document.getElementById('date');
+        const slotInput = document.getElementById('slot');
+        const bookNowButton = document.getElementById('bookNow');
+
+        const todayString = today.toISOString().split('T')[0];
+        const maxDateString = maxDate.toISOString().split('T')[0];
+        dateInput.min = todayString;
+        dateInput.max = maxDateString;
+        dateInput.value = todayString;
+
+        // Redirect to payment page with selected date and slot
+        bookNowButton.addEventListener('click', function() {
+            const selectedDate = dateInput.value;
+            const selectedSlot = slotInput.value;
+            const providerId = {{ provider.id}}; 
+
+            if (!selectedDate || !selectedSlot) {
+                alert('Please select a date and time slot.');
+                return;
+            }
+            const paymentUrl = `/payment/${providerId}/${encodeURIComponent(selectedDate)}/${encodeURIComponent(selectedSlot)}`;
+            window.location.href = paymentUrl;
+});
+    </script>
+</body>
+</html>

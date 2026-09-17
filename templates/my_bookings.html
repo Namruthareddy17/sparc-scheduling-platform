@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Bookings</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(to right, #FFB6C1, #FF8C94);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            animation: fadeIn 1s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            animation: slideDown 0.8s ease-out;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .booking-list {
+            list-style: none;
+            padding: 0;
+            width: 90%;
+            max-width: 600px;
+            margin: 0 auto;
+            animation: fadeInUp 1s ease-in-out;
+            overflow-y: auto;
+            max-height: 80vh;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .booking-item {
+            background-color: #fff;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .booking-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .booking-item p {
+            margin: 5px 0;
+            font-size: 1.1rem;
+            color: #555;
+        }
+
+        .status {
+            font-weight: bold;
+            color: green;
+        }
+
+        .status.completed {
+            color: gray;
+        }
+
+        .no-bookings {
+            font-size: 1.5rem;
+            color: #888;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <h1>Your Bookings</h1>
+        {% if bookings %}
+        <ul class="booking-list">
+            {% for booking in bookings %}
+            <li class="booking-item">
+                <p><strong>Provider:</strong> {{ booking.provider.name }}</p>
+                <p><strong>Date:</strong> {{ booking.date }}</p>
+                <p><strong>Time Slot:</strong> {{ booking.time_slot }}</p>
+                <p><strong>Status:</strong> 
+                    {% if booking.status == 'Completed' %}
+                        <span class="status completed">Completed</span>
+                    {% else %}
+                        <span class="status">Upcoming</span>
+                    {% endif %}
+                </p>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p class="no-bookings">You have no bookings yet.</p>
+        {% endif %}
+    </div>
+</body>
+</html>

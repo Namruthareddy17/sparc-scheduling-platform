@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(to right, #FFB6C1, #FF8C94);
+            animation: fadeIn 1s ease-in;
+            padding-bottom: 100px; /* Ensure space for the chatbot */
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        nav ul {
+            background-color: #333;
+            margin: 0;
+            padding: 10px;
+            list-style: none;
+            display: flex;
+            justify-content: center;
+        }
+
+        nav ul li {
+            margin: 0 15px;
+        }
+
+        nav ul li a {
+            text-decoration: none;
+            color: white;
+            font-size: 1.1rem;
+            transition: color 0.3s;
+        }
+
+        nav ul li a:hover {
+            color: #FFB6C1;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 3rem;
+            margin-top: 20px;
+            color: #333;
+            animation: slideDown 1s ease-out;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .providers {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);  /* Ensures 3 items per row */
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .provider-card {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .provider-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .provider-card h3 {
+            margin-top: 0;
+            color: #333;
+        }
+
+        .provider-image {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+
+        #chatbox {
+    width: 300px;
+    margin: auto;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    background-color: #f9f9f9;
+}
+
+#messages {
+    max-height: 300px;
+    overflow-y: auto;
+    margin-bottom: 10px;
+}
+
+#userInput {
+    width: 80%;
+    padding: 5px;
+    border-radius: 5px;
+}
+
+#sendMessage {
+    padding: 5px 10px;
+    border-radius: 5px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+#sendMessage:hover {
+    background-color: #45a049;
+}
+
+        /* Search form styling */
+.search-form {
+    display: inline-flex;
+    align-items: center;
+    margin-top: 5px;
+}
+
+.search-form input[type="text"] {
+    padding: 8px;
+    margin-right: 5px;
+    font-size: 14px;
+    border: none;
+    border-radius: 4px;
+    width: 200px;
+}
+
+.search-form button {
+    padding: 8px 12px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.search-form button:hover {
+    background-color: #45a049;
+}
+
+/* Container styles */
+.container {
+    padding: 20px;
+}
+
+    </style>
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="{{ url_for('home') }}">Home</a></li>
+            {% if 'user_id' in session %}
+            <li><a href="{{ url_for('logout') }}">Logout</a></li>
+        {% else %}
+            <li><a href="{{ url_for('login') }}">Login</a></li>
+            <li><a href="{{ url_for('signup') }}">Signup</a></li>
+        {% endif %}
+            <li><a href="{{ url_for('provider_register') }}">Provider Register</a></li>
+            <li><a href="{{ url_for('my_bookings') }}">My Bookings</a></li>
+            <li>
+                <form method="get" action="{{ url_for('search') }}" class="search-form">
+                    <input type="text" name="query" placeholder="Search providers..." value="{{ request.args.get('query', '') }}">
+                    <button type="submit">Search</button>
+                </form>
+            </li>
+
+        </ul>
+    </nav>
+    
+    
+    <h1>Available Providers</h1>
+    
+    <!-- Providers Section -->
+    <div class="providers">
+        <h2 style="grid-column: span 3; text-align: center; font-size: 2rem; color: #333; margin-bottom: 20px;">Our Providers</h2>
+
+        {% for provider in providers %}
+            <div class="provider-card">
+                <h3>{{ provider.name }}</h3>
+                <p><strong>Service:</strong> {{ provider.service }}</p>
+                <p><strong>Rating:</strong> {{ provider.rating }}</p>
+                {% if provider.image %}
+                    <img src="{{ url_for('static', filename=provider.image) }}" alt="{{ provider.name }}" class="provider-image">
+                {% else %}
+                    <p>No image available</p>
+                {% endif %}
+                <a href="{{ url_for('provider_details', provider_id=provider.id) }}">View Details</a>
+            </div>
+        {% endfor %}
+    </div>
+
+    <div id="chatbox">
+        <div id="messages"></div>
+        <input type="text" id="userInput" placeholder="Type your message...">
+        <button id="sendMessage">Send</button>
+    </div>
+    
+    <script>
+        document.getElementById('sendMessage').addEventListener('click', function() {
+            let userMessage = document.getElementById('userInput').value;
+            
+            // Send the message to the Flask backend
+            fetch('/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ message: userMessage })
+            })
+            .then(response => response.json())
+            .then(data => {
+                const botResponse = data.response;
+                
+                // Render the bot response inside the messages div
+                let messages = document.getElementById('messages');
+                messages.innerHTML += `<p><strong>You:</strong> ${userMessage}</p>`;
+                messages.innerHTML += `<p><strong>Bot:</strong> ${botResponse}</p>`;
+            });
+        });
+    </script>
+    
+</body>
+</html>
